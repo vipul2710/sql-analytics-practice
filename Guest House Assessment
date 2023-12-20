@@ -42,3 +42,26 @@ join guest as c
 on b.guest_id = c.id
 where c.first_name = 'Ruth' and c.last_name = 'Cadbury') as i
 
+
+Q7. Including Extras. Calculate the total bill for booking 5346 including extras.
+A7 . Select i.tot+i.extras as Amountfrom (
+Select a.amount,a.room_type,a.occupancy,b.nights,(a.amount*b.nights) as tot,sum(c.amount) as extras
+from rate as a
+join booking as b
+on a.room_type = b.room_type_requested
+and a.occupancy = b.occupants
+join extra as c
+on b.booking_id = c.booking_id
+where b.booking_id = 5346
+group by 1,2,3,4,5
+) as i
+
+Q8. Edinburgh Residents. For every guest who has the word “Edinburgh” in their address show the total number of nights booked. Be sure to include 0 for those guests who have never had a booking. Show last name, first name, address and number of nights. Order by last name then first name.
+A8. Select g.first_name,g.last_name,g.address,coalesce(sum(b.nights),0) as nights from guest as g
+left join booking as b
+on g.id = b.guest_id
+where g.address like '%Edinburgh%'
+group by 1,2,3
+order by g.last_name
+
+
