@@ -1,0 +1,44 @@
+Q.Guest 1183. Give the booking_date and the number of nights for guest 1183.
+A. Select cast(booking_date as date) as booking_date,nights
+from booking
+where guest_id = 1183
+
+Q2 . When do they get here? List the arrival time and the first and last names for all guests due to arrive on 2016-11-05, order the output by time of arrival.
+A2 . Select a.arrival_time,b.first_name,b.last_name from booking as a join guest as b 
+on a.guest_id = b.id
+where a.booking_date = '2016-11-05'
+order by 1
+
+Q3. Look up daily rates. Give the daily rate that should be paid for bookings with ids 5152, 5165, 5154 and 5295. Include booking id, room type, number of occupants and the amount.
+A3. Select a.booking_id,a.room_type_requested,a.occupants,(b.amount)
+from booking as a
+join rate as b on a.room_type_requested =b.room_type
+and a.occupants = b.occupancy
+where a.booking_id in (5152,5165,5154,5295)
+group by 1,2,3
+
+Q4. Who’s in 101? Find who is staying in room 101 on 2016-12-03, include first name, last name and address.
+A4. Select b.first_name,b.last_name,b.address from booking as a
+join guest as b
+on a.guest_id = b.id
+where a.room_no = 101 and
+a.booking_date = '2016-12-03'
+
+
+Q5. How many bookings, how many nights? For guests 1185 and 1270 show the number of bookings made and the total number of nights. Your output should include the guest id and the total number of bookings and the total number of nights.
+A5. Select guest_id,count(booking_id),sum(nights)
+from booking
+where guest_id in (1185,1270)
+group by 1
+
+Q6. Ruth Cadbury. Show the total amount payable by guest Ruth Cadbury for her room bookings. You should JOIN to the rate table using room_type_requested and occupants.
+A6. Select sum(i.tot) from 
+(Select a.amount,a.room_type,a.occupancy,b.nights,(a.amount*b.nights) as tot
+from rate as a
+join booking as b
+on a.room_type = b.room_type_requested
+and a.occupancy = b.occupants
+join guest as c
+on b.guest_id = c.id
+where c.first_name = 'Ruth' and c.last_name = 'Cadbury') as i
+
