@@ -65,3 +65,31 @@ group by 1,2,3
 order by g.last_name
 
 
+Q9. How busy are we? For each day of the week beginning 2016-11-25 show the number of bookings starting that day. Be sure to show all the days of the week in the correct order.
+A9. Select cast(booking_date as date), count(booking_id)
+from booking
+where booking_date between '2016-11-25' and date_add('2016-11-25',INTERVAL 6 DAY)
+GROUP BY 1
+ORDER BY BOOKING_DATE
+
+Q10. How many guests? Show the number of guests in the hotel on the night of 2016-11-21. Include all occupants who checked in that day but not those who checked out
+A10. Select sum(occupants) from (Select booking_date as checkin, date_add(booking_date, interval nights day) as checkout,sum(occupants) as occupants from booking 
+group by 1,2) as a
+where checkin <= '2016-11-21' and checkout > '2016-11-21'
+
+
+Q11. Coincidence. Have two guests with the same surname ever stayed in the hotel on the evening? Show the last name and both first names. Do not include duplicates.
+A11. With CTE as (
+Select a.first_name,a.last_name,b.booking_date as checkin,date_add(b.booking_date, interval nights day) as checkout from guest a
+join booking as b
+on a.id = b.guest_id
+)
+
+
+Select distinct(a.last_name),b.first_name,a.first_name from CTE as a
+join CTE as b
+ON a.first_name <> b.first_name
+            AND a.last_name = b.last_name
+            AND ((a.checkin < b.checkout AND a.checkout > b.checkin)
+                 OR (b.checkin < a.checkout AND b.checkout > a.checkin))
+and a.first_name > b.first_name
